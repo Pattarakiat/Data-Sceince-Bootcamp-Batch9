@@ -98,4 +98,54 @@ INSERT INTO payment_methods VALUES
 (2, 'Credit Card'),
 (3, 'Bank Transfer');
 
+-- 1st qurey: join
+.mode box
+SELECT 
+  c.customer_id,
+  c.customer_name,
+  i.invoice_total,
+  pm.payment_method_name
+FROM customers   AS c
+JOIN orders      AS o ON c.customer_id = o.customer_id
+JOIN pizza_menus AS p ON o.pizza_menu_id = p.pizza_menu_id
+JOIN invoices    As i ON c.customer_id = i.customer_id
+JOIN payment_methods AS pm on i.payment_method_id = pm.payment_method_id
+WHERE invoice_total > 200
+AND payment_method_name = 'Cash';
 
+-- 2nd qurey: aggregate function
+.mode box
+SELECT
+  count(*),
+  SUM(order_total),
+  AVG(order_total),
+  MAX(order_total),
+  MIN(order_total)
+FROM orders;
+
+-- 3rd qurey: subquries
+.mode box
+SELECT 
+  *,
+  (SELECT MAX(order_total) 
+    FROM orders) as max_order_price
+FROM orders;
+
+-- 4th qurey: with
+.mode box
+WITH large_size as (
+  SELECT * FROM pizza_menus
+  WHERE pizza_size = 'Large'
+), customer as (
+  SELECT * FROM customers
+)
+
+SELECT 
+  customer_name, 
+  customer_email, 
+  pizza_price
+FROM large_size AS t1
+JOIN orders AS t2     
+ON t1.pizza_menu_id = t2.pizza_menu_id
+JOIN customer AS t3
+ON t2.customer_id = t3.customer_id;
